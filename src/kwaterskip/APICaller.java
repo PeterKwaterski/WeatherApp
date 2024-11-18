@@ -24,10 +24,10 @@ public class APICaller {
     private static final String KEY = "REDACTED";
     private static final int TIMEOUT = 10000;
 
-    public static JSONObject getCity(int zipCode, String countryCode){
+    public static JSONObject getCity(String zipCode, String countryCode){
         try{
             String geoCodeCall = String.format(
-                    "http://api.openweathermap.org/geo/1.0/zip?zip=%d,%s&appid=%s",
+                    "http://api.openweathermap.org/geo/1.0/zip?zip=%s,%s&appid=%s",
                     zipCode, countryCode, KEY);
             URL url = URI.create(geoCodeCall).toURL();
             HttpURLConnection apiConnection = (HttpURLConnection) url.openConnection();

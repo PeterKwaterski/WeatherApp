@@ -10,6 +10,7 @@
 package kwaterskip;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -21,6 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.function.UnaryOperator;
 
 public class ForecastController {
@@ -54,7 +56,7 @@ public class ForecastController {
 
     @FXML
     private void search(){
-        int zipCode = Integer.parseInt(zipBar.getText());
+        String zipCode = zipBar.getText();
         String countryCode = countryBar.getText();
         applyInformation(zipCode, countryCode);
     }
@@ -68,15 +70,14 @@ public class ForecastController {
 
     @FXML
     public void initialize(){
-        final int mkeZip = 53202;
         //Ensures that only integer values can be entered into the Zip Code Search Bar
-        zipBar.addEventFilter(KeyEvent.KEY_TYPED, event -> {
-            if(!event.getCharacter().matches("[0-9]")) {
-                event.consume();
-            }
-        });
+        UnaryOperator<TextFormatter.Change> zipFilter = convert -> {
+            String upperCase = convert.getText();
+            convert.setText(upperCase.toUpperCase());
+            return convert;
+        };
 
-        UnaryOperator<TextFormatter.Change> filter = convert -> {
+        UnaryOperator<TextFormatter.Change> countryfilter = convert -> {
             String upperCase = convert.getText();
             if(upperCase.matches("[a-zA-Z]*")) {
                 convert.setText(upperCase.toUpperCase());
@@ -85,13 +86,15 @@ public class ForecastController {
             return null;
         };
 
-        TextFormatter<String> textFormatter = new TextFormatter<>(filter);
-        countryBar.setTextFormatter(textFormatter);
+        TextFormatter<String> zipFormatter = new TextFormatter<>(zipFilter);
+        zipBar.setTextFormatter(zipFormatter);
+        TextFormatter<String> countryFormatter = new TextFormatter<>(countryfilter);
+        countryBar.setTextFormatter(countryFormatter);
 
-        applyInformation(mkeZip, "US");
+        applyInformation("53202", "US");
     }
 
-    private void applyInformation(int zipCode, String countryCode){
+    private void applyInformation(String zipCode, String countryCode){
         JSONObject json = APICaller.getCity(zipCode, countryCode);
         try {
             if(json != null) {
@@ -117,7 +120,14 @@ public class ForecastController {
                 windSpeed.setText(String.valueOf(speed));
                 weatherType.setText(weatherCondition);
 
-
+                String path = String.format("data/%s.jpg", weatherCondition);
+                try {
+                    File file = new File(path);
+                    Image image = new Image(file.toURI().toString());
+                    weatherImage.setImage(image);
+                } catch (NullPointerException e){
+                    System.out.println("uh oh");
+                }
             } else {
                 throw new NullPointerException();
             }
@@ -126,5 +136,14 @@ public class ForecastController {
         } catch (JSONException e) {
             System.out.println("JSON could not be read");
         }
+    }
+
+    @FXML
+    private void about(){
+        Alert info = new Alert(Alert.AlertType.INFORMATION);
+        info.setTitle("How to Use the App");
+        info.setContentText("Enter a Zip/Postal Code into the Zip Code Box\n" +
+                "In the Country Code Box enter the country's 2-digit ISO code\n " +
+                "then hit either enter in a box or press search");
     }
 }
