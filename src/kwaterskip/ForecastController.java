@@ -3,7 +3,7 @@
  * Weather Application
  * ForecastController Class
  * Name: Peter Kwaterski
- * Last Updated: 11/17/24
+ * Last Updated: 11/18/24
  */
 
 
@@ -86,7 +86,8 @@ public class ForecastController {
      */
     @FXML
     public void initialize(){
-        //Ensures that only integer values can be entered into the Zip Code Search Bar
+        //Sets only integers and letters to be entered into the Zip Code Field
+        //Makes all letters capital
         UnaryOperator<TextFormatter.Change> zipFilter = convert -> {
             String upperCase = convert.getText();
             if(upperCase.matches("[0-9a-zA-Z]*")) {
@@ -96,6 +97,8 @@ public class ForecastController {
             return null;
         };
 
+        //Sets it so only letters can be entered in the Country Code Field
+        //and automatically capitalizes them
         UnaryOperator<TextFormatter.Change> countryfilter = convert -> {
             String upperCase = convert.getText();
             if(upperCase.matches("[a-zA-Z]*")) {
@@ -105,30 +108,43 @@ public class ForecastController {
             return null;
         };
 
+        //Apply the formats
         TextFormatter<String> zipFormatter = new TextFormatter<>(zipFilter);
         zipBar.setTextFormatter(zipFormatter);
         TextFormatter<String> countryFormatter = new TextFormatter<>(countryfilter);
         countryBar.setTextFormatter(countryFormatter);
 
+        //Passes the MKE codes to initialize the program
         applyInformation("53202", "US");
     }
 
+    /**
+     * Takes the zip and country codes and then passes them to the APICaller
+     * to get the information from the API. It then takes the JSONObjects and
+     * takes the data from them to apply to the GUI.
+     * @param zipCode the Zip Code of the location
+     * @param countryCode country code of the location.
+     */
     private void applyInformation(String zipCode, String countryCode){
         JSONObject json = APICaller.getCity(zipCode, countryCode);
         try {
+
             if(json != null) {
                 String name = json.getString("name");
                 cityName.setText(name + ", " + countryCode);
                 double lat = json.getDouble("lat");
                 double lon = json.getDouble("lon");
                 json = APICaller.getWeather(lat, lon);
+
                 if(json != null) {
                     JSONObject mainNumerics = json.getJSONObject("main");
                     double currTemp = mainNumerics.getDouble("temp");
                     double feelsLikeTemp = mainNumerics.getDouble("feels_like");
                     double humidPercent = mainNumerics.getDouble("humidity");
+
                     JSONObject windNum = json.getJSONObject("wind");
                     double speed = windNum.getDouble("speed");
+
                     JSONArray weatherArr = json.getJSONArray("weather");
                     JSONObject weather = weatherArr.getJSONObject(0);
                     String weatherCondition = weather.getString("main");
@@ -137,8 +153,11 @@ public class ForecastController {
                     feelsLike.setText(String.valueOf(feelsLikeTemp));
                     humidity.setText(String.valueOf(humidPercent));
                     windSpeed.setText(String.valueOf(speed));
+
                     weatherType.setText(weatherCondition);
+
                     String path = String.format("/%s.jpg", weatherCondition);
+
                     try(InputStream inputStream =
                                 ForecastController.class.getResourceAsStream(path)){
                         if(inputStream != null) {
@@ -184,6 +203,10 @@ public class ForecastController {
         }
     }
 
+    /**
+     * When the about button is hit a small window appears that
+     * gives basic information about how to use the app and immediate errors.
+     */
     @FXML
     private void about(){
         Alert info = new Alert(Alert.AlertType.INFORMATION);
