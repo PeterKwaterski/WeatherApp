@@ -3,11 +3,12 @@
  * Weather Application
  * APICaller Class
  * Name: Peter Kwaterski
- * Last Updated: 11/17/24
+ * Last Updated: 11/18/24
  */
 
 package kwaterskip;
 
+import javafx.scene.control.Alert;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -19,11 +20,22 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Scanner;
 
+/**
+ * APICaller Class. Contains two methods for calling two different APIs from OpenWeather.
+ */
 public class APICaller {
 
     private static final String KEY = "REDACTED";
     private static final int TIMEOUT = 10000;
 
+    /**
+     * Establishes a connection to the OpenWeather Geocoding API. The uses the
+     * zipCode and CountryCode provided to retrieve and read the output from the
+     * API. Converts and returns the output as a JSONObject.
+     * @param zipCode the ZipCode of the location to retrieve the weather from
+     * @param countryCode the two-letter country code of the country the zip code is from
+     * @return JSONObject The JSON Retrieved read and constructed from the OpenWeather API
+     */
     public static JSONObject getCity(String zipCode, String countryCode){
         try{
             String geoCodeCall = String.format(
@@ -36,30 +48,64 @@ public class APICaller {
             apiConnection.setReadTimeout(TIMEOUT);
             apiConnection.connect();
             StringBuilder cityInformation = new StringBuilder();
-            try (Scanner reader = new Scanner(new InputStreamReader(apiConnection.getInputStream()))){
+            try (Scanner reader = new Scanner(new
+                    InputStreamReader(apiConnection.getInputStream()))){
                 while(reader.hasNext()){
                     cityInformation.append(reader.nextLine());
                 }
+                return new JSONObject(cityInformation.toString());
             } catch (IOException e){
-                System.out.println("Reader IO.");
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR!");
+                alert.setContentText("""
+                        The API failed to provide an output.
+                        this is likely due to an invalid Zip code, Country Code,
+                        or a bad API key.
+                        Please double check and try again""");
+                alert.show();
             }
             apiConnection.disconnect();
-            System.out.println(cityInformation);
-            return new JSONObject(cityInformation.toString());
         } catch (MalformedURLException e){
-            System.out.println("Bad URL");
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR!");
+            alert.setContentText("""
+                        The URL formed to connect to the API was bad.
+                        Please double check everything and try again""");
+            alert.show();
         } catch (ProtocolException e){
-            System.out.println("Bad Protocol");
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR!");
+            alert.setContentText("""
+                        The protocol used to connect to the API was bad.
+                        Please double check everything and try again""");
+            alert.show();
         } catch (IOException e){
-            System.out.println("Cannot Connect to API");
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR!");
+            alert.setContentText("""
+                        The API Could not be connected to or read from
+                        This could be caused by the API being offline
+                        or another connection error.
+                        Please wait and try again later.""");
+            alert.show();
         }
         return null;
     }
 
+    /**
+     * Using the latitude and longitude received from the getCity() JSONObject
+     * a call is made to the Current Weather Data API where it asks for
+     * the data in imperial units at that location. Reads the output from the API
+     * and converts into a JSONObject to return.
+     * @param lat the latitude coordinate of the location
+     * @param lon the longitude coordinate of the location
+     * @return JSONObject containing all the current weather information
+     * at the coordinates passed as parameters.
+     */
     public static JSONObject getWeather(double lat, double lon){
-        System.out.println("getting weather");
         String currentWeatherCall = String.format(
-                "https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&appid=%s&units=imperial",
+                "https://api.openweathermap.org/data/2.5/weather?" +
+                        "lat=%f&lon=%f&appid=%s&units=imperial",
                 lat, lon, KEY);
         try {
             URL url = URI.create(currentWeatherCall).toURL();
@@ -69,25 +115,44 @@ public class APICaller {
             apiConnection.setReadTimeout(TIMEOUT);
             apiConnection.connect();
             StringBuilder weatherInformation = new StringBuilder();
-            System.out.println("creating sb");
-            try (Scanner reader = new Scanner(new InputStreamReader(apiConnection.getInputStream()))){
+            try (Scanner reader = new Scanner(new
+                    InputStreamReader(apiConnection.getInputStream()))){
                 while(reader.hasNext()){
                     weatherInformation.append(reader.nextLine());
                 }
-                System.out.println("read json");
             } catch (IOException e){
-                System.out.println("Reader IO.");
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR!");
+                alert.setContentText("""
+                        The API failed to provide an output.
+                        Please try again""");
+                alert.show();
             }
-            System.out.println("passing json");
             apiConnection.disconnect();
-            System.out.println(weatherInformation);
             return new JSONObject(weatherInformation.toString());
         } catch (MalformedURLException e){
-            System.out.println("Bad URL");
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR!");
+            alert.setContentText("""
+                        The URL formed to connect to the API was bad.
+                        Please double check everything and try again""");
+            alert.show();
         } catch (ProtocolException e){
-            System.out.println("Bad protocol");
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR!");
+            alert.setContentText("""
+                        The protocol used to connect to the API was bad.
+                        Please double check everything and try again""");
+            alert.show();
         } catch (IOException e){
-            System.out.println("Cannot read");
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR!");
+            alert.setContentText("""
+                        The API Could not be connected to or read from
+                        This could be caused by the API being offline
+                        or another connection error.
+                        Please wait and try again later.""");
+            alert.show();
         }
         return null;
     }

@@ -16,6 +16,9 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+/**
+ * JavaFX start Class. Loads the FXML file and initializes the controller.
+ */
 public class Main extends Application {
 
     public static void main(String[] args) {
