@@ -25,7 +25,7 @@ import java.util.Scanner;
  */
 public class APICaller {
 
-    private static final String KEY = "REDACTED";
+    static String KEY = System.getenv("OPEN_WEATHER_KEY");
     private static final int TIMEOUT = 10000;
 
     /**
@@ -37,6 +37,12 @@ public class APICaller {
      * @return JSONObject The JSON Retrieved read and constructed from the OpenWeather API
      */
     public static JSONObject getCity(String zipCode, String countryCode){
+        if(KEY == null){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR!");
+            alert.setContentText("No API Key was found.");
+            alert.show();
+        }
         try{
             String geoCodeCall = String.format(
                     "http://api.openweathermap.org/geo/1.0/zip?zip=%s,%s&appid=%s",
