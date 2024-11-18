@@ -22,7 +22,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.function.UnaryOperator;
 
 /**
@@ -137,16 +138,26 @@ public class ForecastController {
                     humidity.setText(String.valueOf(humidPercent));
                     windSpeed.setText(String.valueOf(speed));
                     weatherType.setText(weatherCondition);
-                    String path = String.format("data/%s.jpg", weatherCondition);
-                    try {
-                        File file = new File(path);
-                        Image image = new Image(file.toURI().toString());
-                        weatherImage.setImage(image);
+                    String path = String.format("/%s.jpg", weatherCondition);
+                    try(InputStream inputStream =
+                                ForecastController.class.getResourceAsStream(path)){
+                        if(inputStream != null) {
+                            Image image = new Image(inputStream);
+                            weatherImage.setImage(image);
+                        } else {
+                            throw new NullPointerException();
+                        }
                     } catch (NullPointerException e){
                         Alert alert = new Alert(Alert.AlertType.WARNING);
                         alert.setTitle("WARNING!");
-                        alert.setContentText("The image corresponding to the " +
+                        alert.setContentText("The image corresponding to the\n" +
                                 "current weather could not be found.");
+                        alert.show();
+                    } catch (IOException e) {
+                        Alert alert = new Alert(Alert.AlertType.WARNING);
+                        alert.setTitle("WARNING!");
+                        alert.setContentText("The image corresponding to the\n" +
+                                "current weather could not be read.");
                         alert.show();
                     }
                 } else{
