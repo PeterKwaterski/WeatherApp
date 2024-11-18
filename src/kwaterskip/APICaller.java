@@ -21,7 +21,7 @@ import java.util.Scanner;
 
 public class APICaller {
 
-    private static final String KEY = "6ce24a9a3af11384d8523ee59bd5f5ff";
+    private static final String KEY = "REDACTED";
     private static final int TIMEOUT = 10000;
 
     public static JSONObject getCity(int zipCode, String countryCode){
@@ -57,6 +57,7 @@ public class APICaller {
     }
 
     public static JSONObject getWeather(double lat, double lon){
+        System.out.println("getting weather");
         String currentWeatherCall = String.format(
                 "https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&appid=%s&units=imperial",
                 lat, lon, KEY);
@@ -68,13 +69,16 @@ public class APICaller {
             apiConnection.setReadTimeout(TIMEOUT);
             apiConnection.connect();
             StringBuilder weatherInformation = new StringBuilder();
+            System.out.println("creating sb");
             try (Scanner reader = new Scanner(new InputStreamReader(apiConnection.getInputStream()))){
                 while(reader.hasNext()){
                     weatherInformation.append(reader.nextLine());
                 }
+                System.out.println("read json");
             } catch (IOException e){
                 System.out.println("Reader IO.");
             }
+            System.out.println("passing json");
             apiConnection.disconnect();
             System.out.println(weatherInformation);
             return new JSONObject(weatherInformation.toString());

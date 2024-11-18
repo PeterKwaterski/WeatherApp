@@ -6,8 +6,10 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="kwaterskip.ForecastController">
    <children>
@@ -36,6 +38,58 @@
             <TextField fx:id="zipBar" onKeyPressed="#textSearch" prefHeight="25.0" prefWidth="90.0" promptText="Zip Code" />
             <TextField fx:id="countryBar" onKeyPressed="#textSearch" prefHeight="25.0" prefWidth="90.0" promptText="Country Code" />
             <Button mnemonicParsing="false" onAction="#search" text="Search" />
+         </children>
+      </HBox>
+      <HBox prefHeight="100.0" prefWidth="200.0">
+         <children>
+            <ImageView fx:id="weatherImage" fitHeight="150.0" fitWidth="263.0" pickOnBounds="true" preserveRatio="true" />
+            <VBox prefHeight="150.0" prefWidth="174.0">
+               <children>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label fx:id="temp" prefHeight="83.0" prefWidth="117.0">
+                           <font>
+                              <Font size="35.0" />
+                           </font></Label>
+                        <Label prefHeight="69.0" prefWidth="55.0" text="°F">
+                           <font>
+                              <Font size="47.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Feels Like:" />
+                        <Label fx:id="feelsLike" prefHeight="17.0" prefWidth="53.0" />
+                        <Label text="°F" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <VBox prefHeight="150.0" prefWidth="159.0">
+               <children>
+                  <HBox prefHeight="47.0" prefWidth="159.0">
+                     <children>
+                        <Label fx:id="weatherType" prefHeight="17.0" prefWidth="65.0" />
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="31.0" prefWidth="159.0">
+                     <children>
+                        <Label prefHeight="17.0" prefWidth="75.0" text="Wind Speed: " />
+                        <Label fx:id="windSpeed" prefHeight="17.0" prefWidth="49.0" />
+                        <Label text="MPH" />
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="27.0" prefWidth="159.0">
+                     <children>
+                        <Label prefHeight="17.0" prefWidth="53.0" text="Humitity:" />
+                        <Label fx:id="humidity" prefHeight="17.0" prefWidth="37.0" />
+                        <Label text="\%" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
          </children>
       </HBox>
    </children>
